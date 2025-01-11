@@ -1,0 +1,22 @@
+WITH ServerCount
+AS (
+SELECT SecurityGroup, COUNT(Server) AS ServerCT, ResourceId, IsPriv
+FROM SecurityGroupDirectory
+GROUP BY SecurityGroup, ResourceId, IsPriv
+)
+
+SELECT b.*, c.Owner AS GroupOwner
+FROM SecurityGroupDirectory a
+LEFT JOIN ServerCount b 
+ON a.SecurityGroup = b.SecurityGroup 
+AND a.ResourceId = b.ResourceId
+AND a.IsPriv = b.IsPriv
+LEFT JOIN Data_SecurityGroup c 
+ON a.SecurityGroup = c.SecurityGroup
+AND c.SecurityGroupType = a.SecurityGroupType
+WHERE Server
+IN (‘’)
+--place servers above, for multiple servers, place comma after each server except the last
+GROUP BY b.SecurityGroup, b.ServerCT, b.ResourceId, b.IsPriv, c.Owner
+HAVING COUNT(a.SecurityGroup) = 4
+--place number of servers above, 4 is given as an example
